@@ -80,6 +80,7 @@ public class QuorumReadWriteTest {
 
         assertEquals("value", new String(response1.getMessageBodyJson()));
 
+        //Simulates strating a new primary instance because the first one went under a pause
         Config config = new Config(primaryClusterNode.getConfig().getWalDir().getAbsolutePath());
         InetAddressAndPort newClientAddress = TestUtils.randomLocalAddress();
         QuorumKVStore newInstance = new QuorumKVStore(new SystemClock(), config, newClientAddress, TestUtils.randomLocalAddress(), Arrays.asList(clusterNodes.get(1).getPeerConnectionAddress(), clusterNodes.get(2).getPeerConnectionAddress()));

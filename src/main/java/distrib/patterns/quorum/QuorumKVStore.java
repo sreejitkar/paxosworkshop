@@ -122,16 +122,23 @@ public class QuorumKVStore {
         int maxKnownGeneration = maxKnownGeneration();
         Integer requestGeneration = request.getGeneration();
         //TODO: Assignment 3 Add check for generation while handling requests.
+        
+        if (requestGeneration < maxKnownGeneration) {
+            String errorMessage = "Rejecting request from generation " + requestGeneration
+                    + " as already accepted from generation " + maxKnownGeneration;
+            sendResponseMessage(
+                    new RequestOrResponse(requestGeneration, RequestId.SetValueResponse.getId(),
+                            errorMessage.getBytes(), request.getCorrelationId(), peerConnectionAddress),
+                    request.getFromAddress());
+            return;
+        }
+
         SetValueRequest setValueRequest = deserialize(request, SetValueRequest.class);
         kv.put(setValueRequest.getKey(), new StoredValue(setValueRequest.getKey(), setValueRequest.getValue(), clock.now(), requestGeneration));
         sendResponseMessage(new RequestOrResponse(requestGeneration, RequestId.SetValueResponse.getId(), "Success".getBytes(), request.getCorrelationId(), peerConnectionAddress), request.getFromAddress());
     }
 
-    ///        if (requestGeneration < maxKnownGeneration) {
-    //            String errorMessage = "Rejecting request from generation " + requestGeneration + " as already accepted from generation " + maxKnownGeneration;
-    //            sendResponseMessage(new RequestOrResponse(requestGeneration, RequestId.SetValueResponse.getId(), errorMessage.getBytes(), request.getCorrelationId(), peerConnectionAddress), request.getFromAddress());
-    //            return;
-    //        }
+
     ///
     private int maxKnownGeneration() {
         return kv.values().stream().map(kv -> kv.generation).max(Integer::compare).orElse(0);

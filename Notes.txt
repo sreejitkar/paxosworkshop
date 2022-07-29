@@ -1,0 +1,51 @@
+Gang of four
+Little's law - states that response time is inversly prop to throughput
+IRCTC could not scale a few years back 
+
+Physical scaling limits 
+    1) CPU
+    2) Memory
+    3) Networks
+    4) Disks
+
+1TB | 500 seconds(SSD 2GBps) | 2000 seconds (non SSD 500MBps)
+
+Data Sharding using ModernDay DB's - Cassandra, Kafka , AZ Cosmos
+
+With Horizontal Scaling, Failure chances increases as sample space increases. 
+1 Disk fails once in 1000 days.
+1000 such disks -> Prob of one failing at a day is 1/1
+
+To read
+--------
+RAFT
+Unmesh Joshi Martin Fowler Blog
+Paxos
+
+
+
+Write Ahead Log  (Process Crash)
+------------------
+If Server fails, preserve data without flushingx the state, which maybe spread across distributed disks.
+Maintain a single log for each server process which is squentialy appended.
+Log before appending
+go back to log to retrieve state upon server comes back up
+
+
+Generational Clock  (Process Pause)
+-------------------
+A clock that is incremented every time a server is restarted. 
+When a server takes a Pause and then comes back up, it can use the clock value to determine if it should apply the state from the log.
+Generational Number is stored on a shared storage
+
+
+Qourum Overlap
+---------------
+If a server takes any action, it needs to ensure that it has a quorum of servers that are up.
+Cluster size = 2f + 1 nodes
+f = number of servers that will fail
+
+
+Paxos
+------
+When data is inconsitent across the cluster, a leader election is needed.
